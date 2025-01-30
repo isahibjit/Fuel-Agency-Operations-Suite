@@ -171,7 +171,7 @@ public class CustomerController {
                                  @Valid @ModelAttribute Customer customer,
                                  BindingResult bindingResult,
                                  Model model,
-                                 HttpSession session) {
+                                 HttpSession session, RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         String userType = (String) session.getAttribute("userType");
 
@@ -180,6 +180,7 @@ public class CustomerController {
         }
 
         if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("id", id);
             return "update";
         }
 
@@ -199,8 +200,7 @@ public class CustomerController {
             return "addSuccess";
         } catch (HttpClientErrorException.BadRequest e) {
             model.addAttribute("errorMessage", e.getResponseBodyAsString());
-            model.addAttribute("customer", customer);
-            return "update";
+            return "redirect:/update/"+id;
         }
     }
 
