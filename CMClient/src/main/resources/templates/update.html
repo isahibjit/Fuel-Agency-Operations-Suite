@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Customer - FAOS</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components/header.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+    <style>
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+        }
+        .form-control.error {
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<header class="header" style="display: flex; justify-content: center;">
+    <a href="/home" class="nav-logo">
+        <i class="fas fa-gas-pump me-2"></i>
+        <!-- Fuel pump icon -->
+        Bharat Gas
+      </a>
+    
+      
+      <ul class="nav-list" id="nav-list" style="display: block;">
+    <nav class="nav">
+        <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+        <li class="nav-item"><a href="/customers" class="nav-link">Display Customers</a></li>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2 class="text-center">Update Customer Information</h2>
+
+       <form th:action="@{'/update/' + ${customer.consumerId}}" th:object="${customer}" method="post">
+            <div class="form-group">
+                <label class="form-label" for="name">Name:</label>
+                <input type="text" class="form-control" id="name" th:field="*{consumerName}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address">Address:</label>
+                <textarea class="form-control" id="address" th:field="*{address}" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email:</label>
+                <input type="text" class="form-control" id="email" th:field="*{email}" required>
+                <div th:if="${#fields.hasErrors('email')}" class="text-danger">
+                    <span th:text="${#fields.errors('email').get(0)}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="contact">Contact Number:</label>
+                <input type="text" class="form-control" id="contact" th:field="*{contactNo}" required>
+                <div th:if="${#fields.hasErrors('contactNo')}" class="text-danger">
+                    <span th:text="${#fields.errors('contactNo').get(0)}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="connType">Connection Type:</label>
+                <input type="text" class="form-control" id="connType" th:field="*{connType}" readonly>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</div>
+<script src="/js/hamburgerMenu.js"></script>
+</body>
+</html>
