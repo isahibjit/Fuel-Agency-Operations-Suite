@@ -60,9 +60,7 @@ public class CustomerService {
     }
     
     //Generate password for the customer
-     
-
-     public static String generatePassword()  {
+    public static String generatePassword()  {
            String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
             int PASSWORD_LENGTH = 8;
 
@@ -75,8 +73,30 @@ public class CustomerService {
             }
             return password.toString();
         }
-     
-
+    
+    public void validateCustomerData(Customer customer) {
+        if (!customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new InvalidEntityException("Invalid email format.");
+        }
+        if (!customer.getContactNo().matches("^[9876]\\d{9}$")) {
+            throw new InvalidEntityException("Contact number must be 10 digits and start with 9, 8, 7, or 6.");
+        }
+    }
+    
+       // Check email id already exist or not
+       public boolean isEmailExists(String email) {
+   		  return customerRepository.existsByEmail(email) ;
+   	   }
+       
+       //Check Contact already exists or not
+  	   public boolean isContactExists(String contactNo) {
+  			return customerRepository.existsByContactNo(contactNo);
+  		}
+  		
+  	//Get details of all customers
+  	public List<Customer> getAllCustomers() {
+          return customerRepository.getAllCustomers();
+      }
     
     //Fetch customer by Id
     public Customer getCustomerById(String consumerId) {
@@ -99,27 +119,13 @@ public class CustomerService {
                 })
                 .orElseThrow(() -> new InvalidEntityException("Customer not found with ID: " + consumerId));
     }
-    // Check email id already exist or not
-	public boolean isEmailExists(String email) {
-		return customerRepository.existsByEmail(email) ;
-	}
-    
-	
-	//Get details of all customers
-	public List<Customer> getAllCustomers() {
-        return customerRepository.getAllCustomers();
-    }
-	
-	//Check Contact already exists or not
-	public boolean isContactExists(String contactNo) {
-		return customerRepository.existsByContactNo(contactNo);
-	}
-	
-	//Deactivate the customer if exists 
+   
+    //Deactivate the customer if exists 
 	public void deactivateCustomer(String consumerId) {
 	    customerRepository.findById(consumerId).ifPresentOrElse(customer -> {
 	        customer.setActive(false);
 	        customerRepository.save(customer);
+	        emailService.sendMailWhenUserDeactivates(consumerId);
 	    }, () -> {
 	        throw new InvalidEntityException("Customer not found with ID: " + consumerId);
 	    });

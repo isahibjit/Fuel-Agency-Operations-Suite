@@ -38,28 +38,20 @@ public class CustomerController {
 			return ResponseEntity.badRequest().body(errors);
 		}
 
-		if (!customer.getContactNo().matches("^[6-9][0-9]{9}$")) {
-			Map<String, String> error = new HashMap<>();
-			error.put("contactNo", "Contact number must start with 6-9 and be 10 digits long.");
-			return ResponseEntity.badRequest().body(error);
-		}
-
-		if (!customer.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-			Map<String, String> error = new HashMap<>();
-			error.put("email", "Invalid email format.");
-			return ResponseEntity.badRequest().body(error);
-		}
-
+		
+		try {
+            customerService.validateCustomerData(customer);
+        } catch (InvalidEntityException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
+		
 		if (customerService.isEmailExists(customer.getEmail())) {
-			Map<String, String> error = new HashMap<>();
-			error.put("email", "Customer with this email already exists.");
-			return ResponseEntity.badRequest().body(error);
-		}
-		if (customerService.isContactExists(customer.getContactNo())) {
-			Map<String, String> error = new HashMap<>();
-			error.put("contactNo", "Customer with this Contact already exists.");
-			return ResponseEntity.badRequest().body(error);
-		}
+	        return ResponseEntity.badRequest().body("Customer with this email already exists.");
+	    }
+	    else if (customerService.isContactExists(customer.getContactNo())) {
+	    	 return ResponseEntity.badRequest().body("Customer with this Contact already exists.");
+	    }
+ 
 		Customer registeredCustomer = customerService.registerCustomer(customer);
 		return ResponseEntity.ok(registeredCustomer);
 	}
@@ -102,6 +94,17 @@ public class CustomerController {
 				result.getAllErrors().forEach(error ->
 						errors.append(error.getDefaultMessage()).append(". "));
 				throw new InvalidEntityException(errors.toString());
+			}
+			try {
+	            customerService.validateCustomerData(updatedCustomer);
+	        } catch (InvalidEntityException ex) {
+	            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+	        }
+			if (customerService.isEmailExists(updatedCustomer.getEmail())) {
+				return ResponseEntity.badRequest().body("Customer with this email already exists.");
+			}
+			else if (customerService.isContactExists(updatedCustomer.getContactNo())) {
+				 return ResponseEntity.badRequest().body("Customer with this Contact already exists.");
 			}
 			try {
 				Customer updated = customerService.updateCustomer(consumerId, updatedCustomer);
