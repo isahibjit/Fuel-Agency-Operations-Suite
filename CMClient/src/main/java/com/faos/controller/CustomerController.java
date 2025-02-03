@@ -49,11 +49,23 @@ public class CustomerController {
     }
 
 
-    @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("customer", new Customer());
-        return "register";
+@GetMapping("/register")
+public String showRegistrationForm(Model model, HttpSession session) {
+    String userType = (String) session.getAttribute("userType");
+    
+    if (session.isNew() || session.getAttribute("userType") == null) {
+        return "redirect:/"; // Redirect unauthenticated users
     }
+
+    if ("CUSTOMER".equals(userType)) {
+        session.invalidate(); // Invalidate session
+        return "redirect:/"; // Redirect to home or another page
+    }
+    
+    model.addAttribute("customer", new Customer());
+    return "register"; // Show the registration page for non-customers
+}
+
 
     @PostMapping("/register")
     public String addCustomer(@Valid @ModelAttribute Customer customer, BindingResult bindingResult, Model model) {
